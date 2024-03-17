@@ -18,12 +18,12 @@ app.get('/',(req,res)=>{
     res.send("home route is working")
 })
 
+
 //import route
-import adminReg from "./routes/AdminRegister.js"
-import { registerAdmin } from "./controller/adminRegister.js" 
+import adminRouter from './routes/adminRegister.js';
 
 // route declaration
-app.post("/admin",registerAdmin)
+app.use("/admin",adminRouter); // localhost:4000/admin/register
 
 
 

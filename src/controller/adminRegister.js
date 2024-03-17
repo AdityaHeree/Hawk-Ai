@@ -1,53 +1,43 @@
-import { asyncHandler} from '../utils/asynHandler.js'
-import { ApiError } from '../utils/ApiError.js'
-import { Admin } from '../models/adminRegister.js'
-import { ApiResponse } from '../utils/ApiResponse.js'
-import jwt from 'jsonwebtoken'
-import mongoose from 'mongoose'
+import { asyncHandler } from "../utils/asynHandler.js";
+import {ApiError} from "../utils/ApiError.js";
+import {Admin} from "../models/adminRegister.js";
+import {ApiResponse} from "../utils/ApiResponse.js"
 
-const registerAdmin = asyncHandler(async (req,res)=>{
-    const { email, password , confirmPassword} = req.body
 
-    console.log(email+ " " + password)
+const adminRegister = asyncHandler( async( req, res) => {
+    const {email, password , confirmPassword} = req.body;
 
-    if([email,password,confirmPassword].some((field)=>{field?.trim() === ""}))
-    {
-        throw new ApiError(400, "All fields are required")
+    console.log("email : " + email)
+    if ([email,password,confirmPassword].some((field) => field?.trim() ==="" )) {
+        throw new ApiError(400, "Required All Fields")
     }
 
-    if(!(password == confirmPassword))
-    {
-        throw new ApiError(400, "Both Password Field Not match ")
+    if (!(password ==confirmPassword)) {
+        throw new ApiError(400, "Both Password Not Match");
     }
-    // const existedUser = await registerAdmin.findOne({
-    // })
 
-    // if (existedUser) {
-    //     throw new ApiError(409, "User with email already exists")
-    // }
+    const existedAdmin =  Admin.findOne({email});
+
+    if (!existedAdmin) {
+        throw new ApiError(409, "this email Already Exist.")
+    }
 
     const admin = await Admin.create({
-        email,
+        email : email.toLowerCase(),
         password
     })
 
-    const createdAdmin = await Admin.findById(admin._id).select(" -password -refreshToken")
+    const createdAdmin = await Admin.findById(admin._id).select("-password");
 
-    if(!createdAdmin)
-    {
-        throw new ApiError(500, "Something went wrong during Register Admin")
+    if (!createdAdmin) {
+        throw new ApiError(500, "Somwthing Went Wrong While Uploading on DB.");
     }
 
     return res.status(201).json(
-        new ApiResponse(
-            200,
-            createdAdmin,
-            "Admin Register Successfullly"
-        )
+        new ApiResponse(200,createdAdmin,"Admin Registered Successfully")
     )
+
 })
 
 
-export {
-    registerAdmin
-}
+export { adminRegister }
